@@ -48,7 +48,7 @@ To optimize CI/CD runtime and API costs, the framework operates in two distinct 
 ### Safety & Guardrails
 The framework enforces strict regex patterns to prevent critical failures in high-risk scenarios, such as safety incidents or fraud reporting. This ensures the model does not hallucinate inappropriate resolutions (e.g., offering coupons during a harassment report).
 
-## ⚠️ Limitations and Engineering Trade-offs
+## Limitations and Engineering Trade-offs
 
 While this framework optimizes for speed and semantic accuracy, it entails specific engineering constraints that must be managed in a production environment.
 
