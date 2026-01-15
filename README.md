@@ -47,12 +47,3 @@ To optimize CI/CD runtime and API costs, the framework operates in two distinct 
 
 ### Safety & Guardrails
 The framework enforces strict regex patterns to prevent critical failures in high-risk scenarios, such as safety incidents or fraud reporting. This ensures the model does not hallucinate inappropriate resolutions (e.g., offering coupons during a harassment report).
-
-## Repository Structure
-
-```text
-.
-├── test_swiggy_final.py    # Main Test Runner (Pytest implementation)
-├── test_data.json          # Data-Driven Test Cases (Mapped to UI Options)
-├── requirements.txt        # Python Dependencies
-└── README.md               # Documentation
