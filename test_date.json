@@ -1,0 +1,122 @@
+[
+  {
+    "id": "TC_MENU_01",
+    "category": "preset",
+    "intent": "order_not_received",
+    "menu_label": "I did not receive this order",
+    "user_query": "The app says delivered 10 minutes ago, but I haven't received anything.",
+    "expected_semantic_meaning": "Acknowledge the non-delivery, offer to track the delivery partner via GPS or call them, and mention a refund/resolution if not found.",
+    "required_keywords": ["partner", "call|connect", "status|location"],
+    "forbidden_keywords": ["enjoy", "review"]
+  },
+  {
+    "id": "TC_MENU_02",
+    "category": "preset",
+    "intent": "portion_size_issue",
+    "menu_label": "Item(s) portion size is not adequate",
+    "user_query": "The portion size for this biryani is way smaller than usual. It's half empty.",
+    "expected_semantic_meaning": "Apologize for the dissatisfaction, explain that portion sizes are determined by the restaurant, and offer to share feedback with them.",
+    "required_keywords": ["restaurant", "feedback", "sorry|apologies"],
+    "forbidden_keywords": []
+  },
+  {
+    "id": "TC_MENU_03",
+    "category": "preset",
+    "intent": "safety_incident",
+    "menu_label": "Report a safety incident",
+    "user_query": "The delivery partner was aggressive and threatened me at the door.",
+    "expected_semantic_meaning": "Express immediate concern, prioritize user safety, and confirm escalation to the Trust & Safety team. Do NOT offer generic compensation immediately.",
+    "required_keywords": ["safety", "escalate|team", "concern|priority"],
+    "forbidden_keywords": ["coupon", "discount", "next time", "enjoy"]
+  },
+  {
+    "id": "TC_MENU_04",
+    "category": "preset",
+    "intent": "missing_items",
+    "menu_label": "Few item(s) are missing in my order",
+    "user_query": "I received the burger but the fries and coke are missing.",
+    "expected_semantic_meaning": "Apologize for the missing items and ask the user to select exactly which items were not received to process a refund.",
+    "required_keywords": ["select", "item", "refund|wallet"],
+    "forbidden_keywords": []
+  },
+  {
+    "id": "TC_MENU_05",
+    "category": "preset",
+    "intent": "incorrect_items",
+    "menu_label": "Item(s) delivered are incorrect or wrong",
+    "user_query": "I ordered Veg Pizza but got a Chicken one. I cannot eat this.",
+    "expected_semantic_meaning": "Apologize profusely for the mix-up, ask for a photo if necessary, and offer a full refund or replacement.",
+    "required_keywords": ["wrong|mix-up", "picture|photo", "refund"],
+    "forbidden_keywords": []
+  },
+  {
+    "id": "TC_MENU_06",
+    "category": "preset",
+    "intent": "quality_issue",
+    "menu_label": "Item(s) quality is poor",
+    "user_query": "The food tastes stale and smells weird. It's not fresh.",
+    "expected_semantic_meaning": "Apologize for the bad experience, take the feedback seriously to flag the restaurant, and offer a resolution (refund/coupon).",
+    "required_keywords": ["quality", "fresh", "restaurant"],
+    "forbidden_keywords": ["standard"]
+  },
+  {
+    "id": "TC_MENU_07",
+    "category": "preset",
+    "intent": "spillage_issue",
+    "menu_label": "Item(s) has spillage issue",
+    "user_query": "The gravy has spilled all over the plastic bag. The packaging was crushed.",
+    "expected_semantic_meaning": "Apologize for the packaging failure and offer a refund for the damaged item.",
+    "required_keywords": ["spill|leak", "packaging", "refund"],
+    "forbidden_keywords": []
+  },
+  {
+    "id": "TC_MENU_08",
+    "category": "preset",
+    "intent": "fraud_incident",
+    "menu_label": "Report a Delivery Partner fraud incident",
+    "user_query": "The driver asked me to pay cash even though I already paid online.",
+    "expected_semantic_meaning": "Treat as a severe policy violation. Assure investigation and warn the partner. Confirm no extra payment is needed. Offer refund if already paid amount.",
+    "required_keywords": ["investigate", "strict", "policy"],
+    "forbidden_keywords": ["pay", "tip", "misunderstanding"]
+  },
+  {
+    "id": "TC_MENU_09",
+    "category": "preset",
+    "intent": "coupon_query",
+    "menu_label": "I have coupon related query for this order",
+    "user_query": "Why was the 'SWIGGYIT' coupon not applied to my order?",
+    "expected_semantic_meaning": "Explain the terms and conditions (T&C) of the coupon (e.g., min order value) or check if it was valid. Check if user if qualified for the coupon.",
+    "required_keywords": ["terms", "conditions", "valid|applied"],
+    "forbidden_keywords": []
+  },
+  {
+    "id": "TC_MENU_10",
+    "category": "preset",
+    "intent": "payment_billing",
+    "menu_label": "Payment and billing related query",
+    "user_query": "Money was deducted from my bank but the order shows failed.",
+    "expected_semantic_meaning": "Reassure the user that the money is safe. Explain the auto-refund timeline (usually 5-7 business days) to the source account.",
+    "required_keywords": ["source", "account", "business days|working days", "refund"],
+    "forbidden_keywords": ["cash", "immediate"]
+  },
+  {
+    "id": "TC_MENU_11",
+    "category": "others",
+    "intent": "complex_escalation",
+    "menu_label": "Other / Chat with us",
+    "user_query": "I am extremely frustrated. I tried applying a coupon, the app crashed, and now my money is deducted but no order is placed. On top of that, your support number isn't working. I want a supervisor immediately.",
+    "expected_semantic_meaning": "N/A (Handled by LLM Judge)",
+    "required_keywords": [],
+    "forbidden_keywords": []
+  },
+  {
+    "id": "TC_ESCALATION_01",
+    "category": "preset",
+    "intent": "agent_handoff",
+    "menu_label": "Escalation / Human Handoff",
+    "user_query": "I don't want to talk to a bot. Connect me to a real person. Agent. Agent.",
+    "expected_semantic_meaning": "Immediately acknowledge the request for a human and confirm the chat is being transferred to a live support agent.",
+    "required_keywords": ["transfer|connect", "agent|human|executive", "wait|queue"],
+    "forbidden_keywords": ["cannot", "sorry but", "I am an AI"]
+  }
+]
