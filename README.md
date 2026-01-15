@@ -47,3 +47,23 @@ To optimize CI/CD runtime and API costs, the framework operates in two distinct 
 
 ### Safety & Guardrails
 The framework enforces strict regex patterns to prevent critical failures in high-risk scenarios, such as safety incidents or fraud reporting. This ensures the model does not hallucinate inappropriate resolutions (e.g., offering coupons during a harassment report).
+
+## ⚠️ Limitations and Engineering Trade-offs
+
+While this framework optimizes for speed and semantic accuracy, it entails specific engineering constraints that must be managed in a production environment.
+
+### 1. Non-Determinism of the Judge
+The "LLM-as-a-Judge" component (Tier B) introduces inherent stochasticity into the testing pipeline. Although the model temperature is set to `0.0` to maximize consistency, minor variations in the judge's reasoning can occur across runs.
+* **Impact:** The "Offline Mode" pipeline is inherently flakier than traditional unit testing suites, occasionally yielding false positives that require manual triage.
+
+### 2. Latency and Cold Starts
+The Cross-Encoder model used for logical consistency checks (`nli-distilroberta-base`) requires significant memory overhead.
+* **Impact:** In a transient CI/CD container, the initial model download and load time (Cold Start) can add approximately **10-15 seconds** to the build time. We mitigate this in "Online Mode" by lazy-loading the model only when a probabilistic audit is triggered, but the initial hit is unavoidable in fresh environments.
+
+### 3. Coupling of Test Data and Product Copy
+The deterministic validation layer relies on specific keyword assertions (e.g., expecting "Wallet" vs. "Swiggy Money").
+* **Impact:** This creates a tight coupling between the test dataset and the application's UI copy. Minor changes to product terminology will cause immediate regression failures in the Tier A suite, necessitating synchronized updates between the Product and QA teams.
+
+### 4. The Bi-Encoder Negation Blind Spot
+The Cosine Similarity check (Tier A) utilizes Bi-Encoders, which excel at topical matching but struggle with fine-grained logical negation. For example, *"Refund processed"* and *"Refund not processed"* yield high similarity scores due to lexical overlap.
+* **Impact:** While the Cross-Encoder (NLI) is implemented to detect these contradictions, it is applied probabilistically (10% sampling) in the fast pipeline due to compute costs. This leaves a small statistical window for logic errors to pass during commit-time checks.
