@@ -1,30 +1,58 @@
-# sdet_assessment
+# Swiggy Chatbot AI Validation Framework
 
-Strategy: The Hybrid AI Validation Framework
-1. Executive Strategy: "Cheap Math" vs. "Expensive Reasoning"
-Testing an LLM is fundamentally different from testing a traditional API. We cannot rely on deterministic string matching (assert output == "refund processed") because the output varies in tone, length, and phrasing every time.
-For a high-scale platform like Swiggy, a "one-size-fits-all" testing strategy is inefficient. We cannot afford to burn expensive GPU resources or pay GPT-4 API costs for trivial queries, nor can we rely on simple keywords for complex escalations.
-To solve this, I designed a Hybrid Validation Framework that routes tests based on complexity:
-Tier A: Deterministic Validation (The "Preset" Flow) Target: 80-90% of traffic (e.g., "Where is my order?", "Missing Item") These queries have a known "Golden Intent." We use lightweight, high-speed mathematical checks:
-Regex Guardrails: Instant, zero-cost checks for mandatory data (e.g., ensuring an Order ID is requested) and safety (e.g., banning "coupon" offers during safety incidents).
-Vector Similarity (Bi-Encoders): We compare the meaning of the response to a reference answer using Cosine Similarity. If the score is > 0.75, the bot is on-script.
-Logic Audits (NLI): To fix the "Negation Blind Spot" (where "I can help" and "I cannot help" look mathematically similar), we use a Cross-Encoder to detect logical contradictions.
-Tier B: Probabilistic Reasoning (The "Others" Flow) Target: 10-20% of traffic (e.g., complex rants, multi-intent complaints) Math fails here because user inputs are unpredictable. We use LLM-as-a-Judge (GPT-4) to act as a semantic grader, evaluating the response against a rubric of empathy, policy compliance, and resolution logic.
-2. Ops Optimization: "Statistical Audit" Approach
-The Challenge: The Cost of Intelligence Running a Cross-Encoder (NLI) or GPT-4 for every single test case in a regression suite of 5,000+ tests would explode our CI/CD runtime from minutes to hours and drastically increase API costs.
-The Solution: Probabilistic Sampling To balance Confidence vs. Velocity, I implemented a tiered execution strategy controlled by environment variables (PIPELINE_MODE):
-The "Fast Path" (Commit-Time Pipeline):
-Goal: Instant feedback for developers (~2 min runtime).
-Method: Runs deterministic checks (Regex + Cosine) on all tests.
-Sampling: We employ a 10% Probabilistic Audit. For every 10 tests, 1 is randomly selected for a "Deep Logic Check" (NLI). This provides statistical confidence that no major logical regressions are being introduced without stalling the build.
-The "Deep Path" (Nightly/Offline Pipeline):
-Goal: Maximum quality assurance before release.
-Execution: Runs with PIPELINE_MODE=OFFLINE. Every single test case undergoes the full battery of evaluations, including Cross-Encoder NLI logic checks and GPT-4 qualitative grading.
-3. Engineering Limitations & Trade-offs
-A. The "Who Watches the Watchmen?" Problem Using GPT-4 to judge GPT-3.5 introduces a layer of non-determinism. If the Judge model hallucinates or misinterprets the rubric, we get a "False Positive" failure. We mitigate this by setting the Judge's temperature to 0.0, but this makes the CI pipeline inherently "flakier" than traditional code pipelines.
-B. Maintenance Overhead The Deterministic Tier relies on specific keywords and intents. If the Product team rebrands "Swiggy Money" to "Swiggy Wallet," our regex rules will break even if the bot is working perfectly. This creates a tighter coupling between Test Data and Product Copy than is ideal, requiring the QA team to be in sync with Product updates.
-C. The "Negation" Blind Spot (Vector Limitation) Standard vector embeddings are excellent at matching topics but struggle with logic. Mathematically, "The refund is processed" and "The refund is not processed" are nearly identical vectors. While our NLI (Natural Language Inference) check fixes this, it is computationally expensive, which is why we only apply it probabilistically in the fast pipeline.
-4. Conclusion
-This framework prioritizes Safety and Speed for the bulk of our users while reserving Intelligence for the complex edge cases. It moves Swiggy's QA from fragile string matching to a robust, semantic-aware quality gate, accepting the trade-off of slightly higher maintenance for significantly higher confidence in AI behavior.
+This repository contains a hybrid Quality Assurance framework designed to validate AI-powered customer support interactions within a CI/CD environment. It addresses the specific challenge of testing Large Language Models (LLMs) by balancing computational efficiency with semantic accuracy.
 
 
+
+## Architecture Overview
+
+Traditional assertion-based testing is insufficient for LLMs due to the non-deterministic nature of generative text. This framework utilizes a **Hybrid Routing Strategy** that categorizes user intent into two tiers, applying the most appropriate validation method for each.
+
+### Tier A: Deterministic Validation (Preset Queries)
+* **Scope:** High-volume, repetitive queries (e.g., Order Status, Missing Items).
+* **Methodology:** Uses lightweight, deterministic heuristics to ensure speed and low cost.
+* **Components:**
+    * **Regex Assertions:** Enforces strict compliance for mandatory data fields (e.g., Order IDs) and safety guardrails.
+    * **Cosine Similarity:** Validates semantic intent against a golden reference using Bi-Encoder embeddings.
+    * **Logical Consistency (NLI):** Probabilistically checks for logical contradictions (e.g., negation errors) using Cross-Encoders.
+
+### Tier B: Probabilistic Validation (Complex Queries)
+* **Scope:** Low-volume, open-ended queries (e.g., Behavioral complaints, complex escalations).
+* **Methodology:** Uses LLM-based evaluation to assess reasoning and tone.
+* **Components:**
+    * **LLM-as-a-Judge:** Utilizes GPT-4 to grade responses based on a specific rubric (Empathy, Policy Adherence, Resolution Logic).
+
+| Feature | Tier A: Preset Queries | Tier B: Complex Queries |
+| :--- | :--- | :--- |
+| **Primary Use Case** | "Where is my order?", "Missing Item" | "Rude delivery partner", "App errors" |
+| **Validation Logic** | Deterministic (Math-based) | Probabilistic (Reasoning-based) |
+| **Technique** | Regex + Cosine Similarity + NLI | LLM-as-a-Judge (GPT-4) |
+| **Cost Profile** | Negligible | High (Per-token API cost) |
+| **Latency** | Milliseconds | Seconds |
+
+## Operational Features
+
+### Pipeline Optimization (Ops Strategy)
+To optimize CI/CD runtime and API costs, the framework operates in two distinct modes:
+
+1.  **Online Mode (Commit-Time):**
+    * Designed for rapid feedback loops.
+    * Executes deterministic checks (Regex/Cosine) on all cases.
+    * Performs a **10% random sample** of heavy Logic Audits (NLI) to catch regressions without stalling the build.
+    * Skips LLM Judge calls.
+
+2.  **Offline Mode (Nightly Regression):**
+    * Designed for maximum coverage before release.
+    * Executes the full test suite, including 100% of NLI Logic Audits and GPT-4 Judge evaluations.
+
+### Safety & Guardrails
+The framework enforces strict regex patterns to prevent critical failures in high-risk scenarios, such as safety incidents or fraud reporting. This ensures the model does not hallucinate inappropriate resolutions (e.g., offering coupons during a harassment report).
+
+## Repository Structure
+
+```text
+.
+├── test_swiggy_final.py    # Main Test Runner (Pytest implementation)
+├── test_data.json          # Data-Driven Test Cases (Mapped to UI Options)
+├── requirements.txt        # Python Dependencies
+└── README.md               # Documentation
