@@ -27,7 +27,7 @@ def get_nli_model():
     """Lazy loader for the heavy NLI model to save startup time in Online mode."""
     global _nli_model
     if _nli_model is None:
-        print("\n[System] 🐢 Loading Heavy NLI Model for Audit (This takes a moment)...")
+        print("\n[System] Loading Heavy NLI Model for Audit (This takes a moment)...")
         _nli_model = CrossEncoder('cross-encoder/nli-distilroberta-base')
     return _nli_model
 
